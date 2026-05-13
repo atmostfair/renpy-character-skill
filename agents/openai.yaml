@@ -1,0 +1,4 @@
+interface:
+  display_name: "RenPy Character Skill Builder"
+  short_description: "Extract VN canon into character skills."
+  default_prompt: "Use $renpy-character-skill-builder to create project-local character skills from a RenPy visual novel."
