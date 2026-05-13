@@ -11,7 +11,9 @@ Build project-local character skills from a Ren'Py visual novel by grounding eve
 
 This workflow skill itself may be installed in an agent skill directory such as `.codex/skills` for reuse across projects. That does not change where it writes character skills: generated character skills are project artifacts and must be placed inside the current game/project folder.
 
-Use this together with `extract-renpy-story` when raw story text has not already been extracted.
+When the user refers to this skill builder, its source repository is the installed `.codex/skills/renpy-character-skill-builder` folder. Only generated character skills belong in the analyzed game/project folder.
+
+Use this on story text extracted by `renpy-story-extraction-skill` whenever possible: `https://github.com/atmostfair/renpy-story-extraction-skill.git`. If raw story text has not already been extracted, extract it first with that skill or the local `extract-renpy-story` workflow.
 
 ## Workflow
 
@@ -21,9 +23,11 @@ Use this together with `extract-renpy-story` when raw story text has not already
    - Confirm character definitions, route variables, gallery/replay data, relationship screens, and story scripts are all available before writing character skills.
 
 2. Extract and audit player-visible story text.
+   - Prefer story text produced by `renpy-story-extraction-skill`: `https://github.com/atmostfair/renpy-story-extraction-skill.git`.
    - Use `extract-renpy-story` rules for story order, speaker rendering, thought/speech distinction, and protagonist normalization.
    - Keep per-story or per-route outputs when possible; do not rely only on one giant merged file.
    - Audit extracted text for unresolved variables, resource paths, leftover Ren'Py tags, fake speakers, and missing thought markers.
+   - Record the extraction source in the generated character-skill repository README.
 
 3. Identify the target character set from systems, not memory.
    - Use relationship and romance systems first: variables such as `<name>_points`, `<name>path`, `<name>u`, heart tables, PAX/phone panels, romance flags, and route gates.
@@ -135,12 +139,92 @@ interface:
   default_prompt: "Use $character-name from the project-local character_skills/character-name skill to write a conversation or scene in Character's voice."
 ```
 
-9. Validate and audit.
+9. Organize generated character skills as a project-local Git repository.
+   - Treat the generated `character_skills/` output root as a repository-ready artifact.
+   - If `character_skills/` is not already inside the intended Git repository, run `git init` in `character_skills/`.
+   - If the user provided a dedicated output repository path, put the character folders at that repository root instead of nesting them twice.
+   - Add a bilingual `README.md` to the generated character-skill repository.
+   - The README must prominently state that these character skills are built from story text extracted by `renpy-story-extraction-skill`: `https://github.com/atmostfair/renpy-story-extraction-skill.git`.
+   - Include source provenance, output structure, use examples, relationship-state policy, and the max-affection branch policy.
+   - Add and commit generated files when Git is available. Push only when a remote is already configured or the user explicitly gives one.
+
+Use this README shape for generated character-skill repositories:
+
+````markdown
+# Character Skills For [Project]
+
+English | Chinese
+
+## English
+
+This repository contains project-local character skills generated from Ren'Py story text. The story text is expected to come from the output of `renpy-story-extraction-skill`: https://github.com/atmostfair/renpy-story-extraction-skill.git.
+
+These skills model each character's voice, memories, relationship state, decision rules, and story behavior from the highest-affection successful branch.
+
+## Structure
+
+```text
+character-name/
+  SKILL.md
+  agents/openai.yaml
+```
+
+## Use
+
+Load a character skill by name and path, for example:
+
+```text
+Use $character-name from this repository to write a conversation or scene in Character's voice.
+```
+
+## Chinese
+
+[Write a Chinese version of the English description. It must state that this repository contains project-local character skills generated from Ren'Py story text, and that the story text is expected to come from `renpy-story-extraction-skill`: https://github.com/atmostfair/renpy-story-extraction-skill.git.]
+
+[Write a Chinese version explaining that these skills model each character's voice, memories, relationship state, decision rules, and story behavior from the highest-affection successful branch.]
+
+## Structure In Chinese
+
+```text
+character-name/
+  SKILL.md
+  agents/openai.yaml
+```
+
+## Use In Chinese
+
+[Write a Chinese usage sentence that tells the user to load a skill by character name and path.]
+
+```text
+Use $character-name from this repository to write a conversation or scene in Character's voice.
+```
+````
+
+10. Validate and audit.
    - Run `quick_validate.py` on every generated character skill and on this workflow skill.
    - Search for template remnants from scaffolded skill files, including placeholder brackets and scaffold instruction headings.
    - Search for branch drift: `Relationship Stage Defaults`, `route stage`, `moves toward`, `pulls away`, `not confirmed`, `low trust`, `trust level`.
    - Search for unwanted output-location assumptions: generated character skills, their metadata, and their default prompts must point to project-local `character_skills/...` paths, not agent skill directories.
    - Check all `.md` and `.yaml` files for non-ASCII if the project convention is ASCII.
+   - Verify the generated character-skill repository has a bilingual README with the `renpy-story-extraction-skill` source link.
+
+11. Publish changes to this builder repository.
+   - When editing this skill builder itself, work in `.codex/skills/renpy-character-skill-builder`, not in a game project copy.
+   - After any successful change to this skill builder, validate, commit, and push to the configured Git remote.
+   - Use the current branch and existing `origin`; do not ask for a new remote when `git remote -v` already shows one.
+   - A typical successful sequence is:
+
+```text
+git status --short
+python <quick_validate.py> .
+git add SKILL.md README.md agents/openai.yaml
+git commit -m "Update RenPy character skill builder"
+git push
+```
+
+   - If validation fails, fix it before committing.
+   - If `git push` fails because authentication, branch protection, or network access is unavailable, report the exact blocker and leave the validated local commit in place.
+   - This publish rule applies to this skill builder repository. Generated character skills still belong in the target game/project folder; only push those project outputs when that target project has its own Git remote and the user wants those project files published.
 
 ## Quality Bar
 
@@ -157,19 +241,27 @@ Do not add generic moralizing, installation notes, or safety/disclaimer boilerpl
 
 - Building the character list from memory instead of relationship/gallery systems.
 - Summarizing plot instead of extracting decision logic.
+- Treating raw game scripts as already-audited extraction output without checking whether `renpy-story-extraction-skill` or equivalent extraction rules were used.
 - Leaving route stages active, which makes the model drift back to early or low-affection behavior.
 - Writing a generic "romanceable girl" voice instead of concrete speech habits.
 - Keeping failed branch choices as if they are current history.
 - Omitting capability limits for specialists such as hackers, royals, fighters, or magic users.
 - Writing generated character skills into `.codex/skills` or another agent skill directory just because this workflow skill is installed there.
+- Leaving generated character skills as loose files instead of organizing them as a Git repository with a bilingual README.
+- Omitting the `renpy-story-extraction-skill` source link from the generated repository README.
+- Treating the skill builder repository as a project-local output folder instead of editing `.codex/skills/renpy-character-skill-builder`.
+- Forgetting to push validated repository changes after editing this skill builder.
 
 ## Final Checklist
 
 - Character scope is justified by source evidence.
 - Story text extraction has been audited.
 - Every target character has a `SKILL.md` and `agents/openai.yaml`.
+- Generated character skills are organized as a Git repository or inside the user's intended output repository.
+- Generated character-skill repository has a bilingual README and names `https://github.com/atmostfair/renpy-story-extraction-skill.git` as the expected extraction source.
 - Every character skill locks to the highest-affection active branch.
 - Prior events are memory, not relationship-stage switches.
 - Direct chat uses first person and can step out for analysis.
 - Validation passes for every skill.
 - Grep audits show no template remnants or old branch-stage wording.
+- Skill builder repository changes are committed and pushed to GitHub when a remote is configured.
