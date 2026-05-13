@@ -15,8 +15,13 @@ The builder focuses on romanceable or relationship-driven female characters. It 
 - A bilingual README for the generated character-skill repository.
 - Git organization for generated character skills, with commits when Git is available.
 - Character models locked to the highest-affection / most intimate successful branch.
+- Safe reruns for existing character-skill repositories after game updates.
 
 Generated character skills are project artifacts. They should be written to the analyzed game/project folder, not to `.codex/skills`.
+
+## Reruns And Updates
+
+The builder can be run again on an existing `character_skills/` repository when a game updates. It should compare the new extracted story text and route/relationship evidence against the previous generated state, update only characters whose source evidence changed, and leave unchanged character skills untouched. If no relevant source evidence changed, the correct result is a no-op report instead of rewriting files.
 
 ## Install
 
@@ -71,8 +76,13 @@ character_skills/
 - 为生成的人物 skill 仓库创建中英文 README。
 - 将生成的人物 skill 自动组织为 Git 仓库，并在 Git 可用时提交。
 - 角色模型锁定到最高好感 / 最亲密 / 成功分支。
+- 支持在游戏更新后对已有的人物 skill 仓库安全重复运行。
 
 生成的人物 skill 是项目产物，应写入被分析的游戏/项目目录，而不是 `.codex/skills`。
+
+## 重复运行与更新
+
+当游戏更新后，可以在已有的 `character_skills/` 仓库上再次运行 builder。它应比较新的剧情提取文本、路线证据和关系证据，只更新源证据发生变化的角色，并保持未变化角色的 skill 不动。如果没有相关源证据变化，正确结果是报告无需更新，而不是重写文件。
 
 ## 安装
 
