@@ -58,6 +58,11 @@ Use this on story text extracted by `renpy-story-extraction-skill` whenever poss
      - relationship behavior: what the protagonist did in the successful branch.
      - boundaries: what the character still refuses even in intimacy.
    - Use multiple scene types: daily chat, danger, jealousy, family conflict, vulnerability, romance, and recovery after fear or failure.
+   - Do not overcompress the dossier. A project-local character skill is usually loaded one character at a time, so it should contain enough source-grounded memory for the model to imitate the character without rereading the full story extraction.
+   - Prefer a rich skill over a thin trait summary. Include concrete experiences, recurring routines, family/social dynamics, relationship scars, late-route evidence, favorite topics, emotional tells, and common scene behaviors.
+   - Include representative speech material as reusable patterns, not long canon quotes. Show line shape, rhythm, stammers, profanity level, titles, pet names, joke style, and how the character sounds when hurt, happy, scared, jealous, or intimate.
+   - Capture the final relationship state in detail. The model should know what has already been resolved, which conflicts are only remembered scars, and what trust or intimacy is now stable.
+   - If the source has a complex shared-romance or harem branch, record only the most intimate successful branch as active state. State who knows, who accepted it, what conflicts were resolved, and what old jealousies remain as memory rather than active branch uncertainty.
 
 6. Lock the active branch to the most intimate route.
    - Use the highest-affection, most intimate protagonist branch as the only active branch unless the user asks for analysis.
@@ -120,6 +125,15 @@ State handling:
 
 ## Experiences And Growth
 [Process history that explains current behavior. Keep it memory, not active stage switching.]
+
+## Expanded Canon Memory
+[Richer source-grounded memory pack: specific experiences, family/social dynamics, routines, late-route conflicts, scars, abilities, obligations, and what is already resolved in the max-state branch.]
+
+## Dialogue Material
+[Reusable speech patterns and short example line shapes. Include rhythm, vocabulary, pet names, titles, stammers, profanity level, humor, emotional tells, and how voice changes under pressure. Do not copy long canon passages.]
+
+## Max-State Detail
+[Detailed current-state rules for the highest-affection branch: what relationship facts are stable, what conflicts are resolved, what scars remain, how intimacy changes behavior without erasing personality, and what must not regress.]
 
 ## Decision Rules
 In the locked max-intimacy branch, assume the protagonist:
@@ -252,7 +266,11 @@ A character skill is good enough only when a reader can use it to answer both qu
 - "How would this character talk to me right now in the max-intimacy branch?"
 - "If this character must choose in a new scene, what would they do and why?"
 
-Reject skills that only list traits. Each skill needs voice, experiences, active branch, relationship state, decision rules, story use, direct chat rules, and avoid rules.
+Reject skills that only list traits. Each skill needs voice, experiences, expanded canon memory, dialogue material, active branch, max-state detail, relationship state, decision rules, story use, direct chat rules, and avoid rules.
+
+Do not make character skills short just to save context. The user normally loads one character skill for one task, so extra source-grounded material is useful when it helps the model reproduce the character's choices, emotional continuity, and direct-chat feel. Trim repetition and long quotations, not canon memory.
+
+The right density is "enough that the next agent does not need the full story extraction to write the character well." For major romance characters, expect a substantial `SKILL.md` with concrete memory, speech, and max-state sections rather than a compressed profile.
 
 An update is good enough only when every changed line can be traced to new or changed source evidence. No-op reruns are valid outcomes and are preferable to style churn.
 
@@ -269,6 +287,7 @@ Do not add generic moralizing, installation notes, or safety/disclaimer boilerpl
 - Overwriting dirty user edits in an existing character-skill repository.
 - Leaving route stages active, which makes the model drift back to early or low-affection behavior.
 - Writing a generic "romanceable girl" voice instead of concrete speech habits.
+- Writing a short profile that preserves labels but not enough memory, dialogue texture, or final-state relationship logic for direct chat.
 - Keeping failed branch choices as if they are current history.
 - Omitting capability limits for specialists such as hackers, royals, fighters, or magic users.
 - Writing generated character skills into `.codex/skills` or another agent skill directory just because this workflow skill is installed there.
